@@ -1,0 +1,21 @@
+{
+    "categoryName": "string",
+    "categoryId": "integer",
+    "events": [{
+        "eventId": "integer",
+        "eventName": "string",
+        "subevents": [{
+            "subeventId": "integer",
+            "subeventName": "string",
+            "markets": [{
+                "marketId": "integer",
+                "marketName": "string",
+                "bets": [{
+                    "betId": "integer",
+                    "betName": "string",
+                    "oddsDecimal": "integer"
+                }]
+            }]
+        }]
+    }]
+}

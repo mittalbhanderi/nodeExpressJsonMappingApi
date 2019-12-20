@@ -1,0 +1,37 @@
+[
+  {
+    "oddschecker_keyword": "Man Utd",
+    "type": "participant_name",
+    "synonyms": ["Man United", "Manchester United", "The Red Devils"]
+  },
+  {
+    "oddschecker_keyword": "Chelsea",
+    "type": "participant_name",
+    "synonyms": ["Chelsea Football Club", "The Blues", "The Pensioners"]
+  },
+  {
+    "oddschecker_keyword": "football",
+    "type": "category_name",
+    "synonyms": ["soccer", "footie"]
+  },
+  {
+    "oddschecker_keyword": "English Premier League",
+    "type": "event_name",
+    "synonyms": ["premier league", "EPL"]
+  },
+  {
+    "oddschecker_keyword": "winner",
+    "type": "market_name",
+    "synonyms": ["win", "first-place"]
+  },
+  {
+    "oddschecker_keyword": "correct score",
+    "type": "market_name",
+    "synonyms": ["match score", "final score"]
+  },
+  {
+    "oddschecker_keyword": "first goalscorer",
+    "type": "market_name",
+    "synonyms": ["first scorer", "to score first", "initial goalscorer"]
+  }
+]

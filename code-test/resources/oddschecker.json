@@ -1,0 +1,54 @@
+{
+    "categoryName": "football",
+    "categoryId": 973406536,
+    "events": [
+        {
+            "eventName": "English Premier League",
+            "eventId": 4265382183,
+            "subevents": [
+                {
+                    "subeventName": "Man Utd vs. Chelsea",
+                    "subeventId": 1153354203,
+                    "markets": [
+                        {
+                            "marketName": "winner",
+                            "marketId": "10",
+                            "bets": [
+                                {
+                                    "betId": "The Red Devils",
+                                    "oddsDecimal": "6.2"
+                                },
+                                {
+                                    "betId": "Draw",
+                                    "oddsDecimal": "1.7"
+                                },
+                                {
+                                    "betId": "The Blues",
+                                    "oddsDecimal": "1.2"
+                                }
+                            ]
+                        },
+                        {
+                            "marketName": "first goalscorer",
+                            "marketId": "111",
+                            "bets": [
+                                {
+                                    "betId": "Pedro",
+                                    "oddsDecimal": "2.5"
+                                },
+                                {
+                                    "betId": "Pulisic",
+                                    "oddsDecimal": "1.9"
+                                },
+                                {
+                                    "betId": "Lukaku",
+                                    "oddsDecimal": "1.2"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

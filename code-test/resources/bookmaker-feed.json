@@ -1,0 +1,45 @@
+{
+  "sport": "soccer",
+  "competitions": [{
+    "name": "EPL",
+    "matches": [{
+      "name": "The Red Devils vs. The Blues",
+      "markets": [
+        {
+          "name": "win",
+          "id": "10",
+          "outcomes": [{
+            "id": "100",
+            "name": "The Red Devils",
+            "odds": "6.2"
+          }, {
+            "id": "200",
+            "name": "Draw",
+            "odds": "1.7"
+          }, {
+            "id": "300",
+            "name": "The Blues",
+            "odds": "1.2"
+          }]
+        },
+        {
+          "name": "to score first",
+          "id": "111",
+          "outcomes": [{
+            "id": "101",
+            "name": "Pedro",
+            "odds": "2.5"
+          }, {
+            "id": "201",
+            "name": "Pulisic",
+            "odds": "1.9"
+          }, {
+            "id": "301",
+            "name": "Lukaku",
+            "odds": "1.2"
+          }]
+        }
+      ]
+    }]
+  }]
+}
