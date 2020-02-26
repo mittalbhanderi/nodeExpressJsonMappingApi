@@ -1,9 +1,11 @@
 import * as express from "express";
 const app = express();
 const HTTP_PORT = 3000;
-import * as apiRoutes from "./routes";
-import * as mapperService from "./services/mapperService";
+import apiRoutes from "./routes";
+import MapperService from "./services/mapperService";
 import * as lodash from "lodash";
+
+const mapperService = new MapperService();
 
 const getRandomInt = (max: number) => {
   return Math.floor(Math.random() * Math.floor(max));

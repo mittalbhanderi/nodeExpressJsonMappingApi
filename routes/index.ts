@@ -1,6 +1,8 @@
 import * as  express from 'express';
 const router = express.Router()
-import * as service from '../services'
+import Service from '../services'
+
+const service = new Service();
 
 // middleware that is specific to this router
 router.use(function timeLog (req:any, res:any, next: any) {
@@ -9,7 +11,7 @@ router.use(function timeLog (req:any, res:any, next: any) {
 })
 
 router.get('/events/:event_id', (req:any, res:any) => {
-  return service.getItem(req,res,'event_id', 'eventId');
+  return service.getItem(req , res,'event_id', 'eventId');
 })
 
 router.get('/subevents/:subevent_id', (req:any, res:any) => {
@@ -25,4 +27,4 @@ router.get('/bets/:bet_id', (req:any, res:any) => {
 })
 
 
-module.exports = router;
+export default router;

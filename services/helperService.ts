@@ -1,20 +1,11 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as crypto from "crypto";
-import { promisify } from "util";
-
-// module.exports = {
-//   generateId: this.generateId,
-//   readJsonAsync: promisify(readJson),
-//   writeJsonAsync: promisify(writeJson),
-//   readDataJsonAsync: promisify(readDataJson),
-//   cacheFeedData: cacheFeedData
-// };
 
 const LENGTH_OF_RANDOM_HEX_ID = 4;
 
-class HelperService {
-  generateId() {
+export default class HelperService {
+  generateId(): number {
     // could have just returned datetime number
     // however, it is predictable
     return parseInt(
@@ -23,17 +14,60 @@ class HelperService {
     );
   }
 
-  readJsonAsync() {
-    return promisify(this.readJson);
-  }
+  readJsonAsync = async (fileName: string) => {
+    return new Promise((resolve, reject) => {
+      fs.readFile(path.resolve("resources", fileName), "utf8", function(
+        err,
+        data
+      ) {
+        if (err) {
+          console.error("File read failed!", err);
+          reject(new Error(`File read failed! ${err}`));
+        }
+        try {
+          const obj = JSON.parse(data);
+          resolve(obj);
+        } catch (err) {
+          console.error("Parsing JSON failed!", err);
+          reject(new Error(`Parsing JSON failed! ${err}`));
+        }
+      });
+    });
+  };
 
-  writeJsonAsync() {
-    return promisify(this.writeJson);
-  }
+  writeJsonAsync = async (fileName: string, jsonObject: Object) => {
+    return new Promise((resolve, reject) => {
+      fs.writeFile(
+        path.resolve("resources", fileName),
+        JSON.stringify(jsonObject),
+        "utf8",
+        function(err) {
+          if (err) {
+            console.error("File write failed!", err);
+            reject(new Error(`File write failed! ${err}`));
+          }
+          resolve(true);
+        }
+      );
+    });
+  };
 
-  readDataJsonAsync() {
-    return promisify(this.readDataJson);
-  }
+  readDataJsonAsync = async (fileName: string) => {
+    return new Promise((resolve, reject) => {
+      if (!this.feedBettingData[fileName]) {
+        this.readJson(fileName, (err: any, obj: Object) => {
+          if (!err) {
+            this.feedBettingData[fileName] = obj;
+            resolve(obj);
+          } else {
+            console.error("File read failed!", err);
+            reject(new Error(`File read failed! ${err}`));
+          }
+        });
+      }
+      resolve(this.feedBettingData[fileName]);
+    });
+  };
 
   private readJson(fileName: string, callback: any) {
     fs.readFile(path.resolve("resources", fileName), "utf8", function(
@@ -54,7 +88,11 @@ class HelperService {
     });
   }
 
-  private writeJson(fileName: string, jsonObject: Object, callback: any) {
+  private writeJson(
+    fileName: string,
+    jsonObject: Object,
+    callback: (result: any, success?: boolean) => void
+  ) {
     fs.writeFile(
       path.resolve("resources", fileName),
       JSON.stringify(jsonObject),
@@ -78,22 +116,22 @@ class HelperService {
     }
   }
 
-  private readDataJson(fileName: string, callback: any) {
-    if (!this.feedBettingData[fileName]) {
-      this.readJson(fileName, (err: any, obj: Object) => {
-        if (!err) {
-          this.feedBettingData[fileName] = obj;
-          callback(null, obj);
-        } else {
-          console.error("File read failed!", err);
-          callback(new Error(`File read failed! ${err}`));
-        }
-      });
-    }
-    callback(null, this.feedBettingData[fileName]);
-  }
+  // private readDataJson(fileName: string, callback: any) {
+  //   if (!this.feedBettingData[fileName]) {
+  //     this.readJson(fileName, (err: any, obj: Object) => {
+  //       if (!err) {
+  //         this.feedBettingData[fileName] = obj;
+  //         callback(null, obj);
+  //       } else {
+  //         console.error("File read failed!", err);
+  //         callback(new Error(`File read failed! ${err}`));
+  //       }
+  //     });
+  //   }
+  //   callback(null, this.feedBettingData[fileName]);
+  // }
 
-  getObject(theObject: any, property: string, value: string): any {
+  getObject(theObject: any, property?: string, value?: string | number): any {
     if (!this.memoize[`${property}_${value}`]) {
       let result = null;
       if (theObject instanceof Array) {
@@ -128,5 +166,3 @@ class HelperService {
     }
   }
 }
-declare var module: any;
-(module).exports = HelperService;

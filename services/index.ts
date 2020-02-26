@@ -1,9 +1,11 @@
-import * as helperService from "./helperService";
+import HelperService from "./helperService";
+const helperService = new HelperService();
 
-class Index {
+export default class Index {
+
   getItem(req: any, res: any, param: string, property?: string) {
     if (req.params[param]) {
-      const ids = [...new Set(req.params[param].split(","))];
+      const ids: Array<string> = [...new Set<string>(req.params[param].split(","))];
       helperService
         .readDataJsonAsync("oddschecker.json")
         .then((obj: any) => {
@@ -11,7 +13,7 @@ class Index {
             let result = [];
 
             for (let index = 0; index < ids.length; index++) {
-              let id = ids[index];
+              let id: string = ids[index];
               if (Number(id)) {
                 let object = helperService.getObject(obj, property, id);
                 if (object) {
@@ -45,6 +47,3 @@ class Index {
     }
   }
 }
-
-declare var module: any;
-(module).exports = Index;
