@@ -4,8 +4,9 @@ const HTTP_PORT = 3000;
 import apiRoutes from "./routes";
 import MapperService from "./services/mapperService";
 import * as lodash from "lodash";
+import DIContainer from "./di-container";
 
-const mapperService = new MapperService();
+const mapperService = DIContainer.resolve<MapperService>(MapperService);
 
 const getRandomInt = (max: number) => {
   return Math.floor(Math.random() * Math.floor(max));

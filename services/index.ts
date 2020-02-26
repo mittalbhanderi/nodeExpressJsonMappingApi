@@ -1,12 +1,21 @@
 import HelperService from "./helperService";
-const helperService = new HelperService();
+import { inject, injectable } from "inversify";
 
+@injectable()
 export default class Index {
+  protected helperService: HelperService;
+
+  constructor(@inject(HelperService) _helperService: HelperService) {
+    this.helperService = _helperService;
+  }
 
   getItem(req: any, res: any, param: string, property?: string) {
     if (req.params[param]) {
-      const ids: Array<string> = [...new Set<string>(req.params[param].split(","))];
-      helperService
+      const ids: Array<string> = [
+        ...new Set<string>(req.params[param].split(","))
+      ];
+
+      this.helperService
         .readDataJsonAsync("oddschecker.json")
         .then((obj: any) => {
           if (obj) {
@@ -15,7 +24,7 @@ export default class Index {
             for (let index = 0; index < ids.length; index++) {
               let id: string = ids[index];
               if (Number(id)) {
-                let object = helperService.getObject(obj, property, id);
+                let object = this.helperService.getObject(obj, property, id);
                 if (object) {
                   result.push(object);
                 }

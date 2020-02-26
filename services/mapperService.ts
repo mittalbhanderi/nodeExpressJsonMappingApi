@@ -1,10 +1,5 @@
 import HelperService from "./helperService";
-const helperService = new HelperService();
-
-// module.exports = {
-//   parseJson: parseJson,
-//   getIds: getIds
-// };
+import { inject, injectable } from 'inversify';
 
 const SYNONYMS_MAPPER: { [key: string]: string } = {
   sport: "category",
@@ -26,7 +21,14 @@ const SYNONYMS_TYPE_MAPPER: { [key: string]: string } = {
 const DELIMITERS: Array<string> = [" vs. "];
 const NAME_MAPPING_KEYS: Array<string> = ["name", "sport"];
 
+@injectable()
 export default class MapperService {
+  protected helperService: HelperService;
+
+  constructor(@inject(HelperService) _helperService: HelperService) {
+    this.helperService = _helperService;
+  }
+
   synonyms: any;
   memoize: any = {};
   ids: Array<number> = [];
@@ -37,17 +39,17 @@ export default class MapperService {
 
   parseJson() {
     return new Promise((resolve, reject) => {
-      helperService
+      this.helperService
         .readJsonAsync("synonyms.json")
         .then(data => {
           this.synonyms = data;
-          helperService.readJsonAsync("bookmaker-feed.json").then(obj => {
+          this.helperService.readJsonAsync("bookmaker-feed.json").then(obj => {
             let result = {};
             let currentKey = "sport";
             try {
               this.mapData(obj, result, currentKey);
-              helperService.cacheFeedData("oddschecker.json", result);
-              helperService
+              this.helperService.cacheFeedData("oddschecker.json", result);
+              this.helperService
                 .writeJsonAsync("oddschecker.json", result)
                 .then(status => {
                   if (status) {
@@ -130,7 +132,7 @@ export default class MapperService {
 
           if (!theObject.hasOwnProperty("id")) {
             key = SYNONYMS_MAPPER[currentKey] + "Id";
-            value = helperService.generateId();
+            value = this.helperService.generateId();
             this.ids.push(value);
             subObject[key] = value;
           }

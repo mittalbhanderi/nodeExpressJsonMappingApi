@@ -1,10 +1,22 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as crypto from "crypto";
+import { injectable } from "inversify";
+import "reflect-metadata";
+import { json } from "express";
 
 const LENGTH_OF_RANDOM_HEX_ID = 4;
 
+@injectable()
 export default class HelperService {
+  private memoize: any;
+  private feedBettingData: any;
+
+  constructor() {
+    this.memoize = {};
+    this.feedBettingData = {};
+  }
+
   generateId(): number {
     // could have just returned datetime number
     // however, it is predictable
@@ -14,7 +26,7 @@ export default class HelperService {
     );
   }
 
-  readJsonAsync = async (fileName: string) => {
+  readJsonAsync = (fileName: string) => {
     return new Promise((resolve, reject) => {
       fs.readFile(path.resolve("resources", fileName), "utf8", function(
         err,
@@ -25,7 +37,7 @@ export default class HelperService {
           reject(new Error(`File read failed! ${err}`));
         }
         try {
-          const obj = JSON.parse(data);
+          let obj = JSON.parse(data);
           resolve(obj);
         } catch (err) {
           console.error("Parsing JSON failed!", err);
@@ -35,7 +47,8 @@ export default class HelperService {
     });
   };
 
-  writeJsonAsync = async (fileName: string, jsonObject: Object) => {
+  writeJsonAsync = (fileName: string, jsonObject: Object) => {
+    const _self = this;
     return new Promise((resolve, reject) => {
       fs.writeFile(
         path.resolve("resources", fileName),
@@ -46,90 +59,46 @@ export default class HelperService {
             console.error("File write failed!", err);
             reject(new Error(`File write failed! ${err}`));
           }
+          _self.feedBettingData[fileName] = jsonObject;
+          console.log(`Cached ${fileName} data to the object`);
           resolve(true);
         }
       );
     });
   };
 
-  readDataJsonAsync = async (fileName: string) => {
+  readDataJsonAsync = (fileName: string): Promise<any> => {
+    const _self = this;
     return new Promise((resolve, reject) => {
       if (!this.feedBettingData[fileName]) {
-        this.readJson(fileName, (err: any, obj: Object) => {
-          if (!err) {
-            this.feedBettingData[fileName] = obj;
-            resolve(obj);
-          } else {
+        fs.readFile(path.resolve("resources", fileName), "utf8", function(
+          err,
+          data
+        ) {
+          if (err) {
             console.error("File read failed!", err);
             reject(new Error(`File read failed! ${err}`));
           }
+          try {
+            let obj = JSON.parse(data);
+            _self.cacheFeedData(fileName, obj);
+            resolve(obj);
+          } catch (err) {
+            console.error("Parsing JSON failed!", err);
+            reject(new Error(`Parsing JSON failed! ${err}`));
+          }
         });
+      } else {
+       resolve(this.feedBettingData[fileName]);
       }
-      resolve(this.feedBettingData[fileName]);
     });
   };
-
-  private readJson(fileName: string, callback: any) {
-    fs.readFile(path.resolve("resources", fileName), "utf8", function(
-      err,
-      data
-    ) {
-      if (err) {
-        console.error("File read failed!", err);
-        callback(new Error(`File read failed! ${err}`));
-      }
-      try {
-        const obj = JSON.parse(data);
-        callback(null, obj);
-      } catch (err) {
-        console.error("Parsing JSON failed!", err);
-        callback(new Error(`Parsing JSON failed! ${err}`));
-      }
-    });
-  }
-
-  private writeJson(
-    fileName: string,
-    jsonObject: Object,
-    callback: (result: any, success?: boolean) => void
-  ) {
-    fs.writeFile(
-      path.resolve("resources", fileName),
-      JSON.stringify(jsonObject),
-      "utf8",
-      function(err) {
-        if (err) {
-          console.error("File write failed!", err);
-          callback(new Error(`File write failed! ${err}`));
-        }
-        callback(null, true);
-      }
-    );
-  }
-
-  memoize: any = {};
-  feedBettingData: any = {};
 
   cacheFeedData(fileName: string, data: Object) {
     if (!this.feedBettingData[fileName]) {
       this.feedBettingData[fileName] = data;
     }
   }
-
-  // private readDataJson(fileName: string, callback: any) {
-  //   if (!this.feedBettingData[fileName]) {
-  //     this.readJson(fileName, (err: any, obj: Object) => {
-  //       if (!err) {
-  //         this.feedBettingData[fileName] = obj;
-  //         callback(null, obj);
-  //       } else {
-  //         console.error("File read failed!", err);
-  //         callback(new Error(`File read failed! ${err}`));
-  //       }
-  //     });
-  //   }
-  //   callback(null, this.feedBettingData[fileName]);
-  // }
 
   getObject(theObject: any, property?: string, value?: string | number): any {
     if (!this.memoize[`${property}_${value}`]) {
