@@ -1,5 +1,5 @@
 import HelperService from "./helperService";
-import { inject, injectable } from 'inversify';
+import { inject, injectable } from "inversify";
 
 const SYNONYMS_MAPPER: { [key: string]: string } = {
   sport: "category",
@@ -18,12 +18,19 @@ const SYNONYMS_TYPE_MAPPER: { [key: string]: string } = {
   bet: "participant_name"
 };
 
+const BOOKMAKER_KEYS_MAPPER: { [key: string]: string } = {
+  competitions: "events",
+  matches: "subevents",
+  markets: "markets",
+  outcomes: "bets"
+};
+
 const DELIMITERS: Array<string> = [" vs. "];
 const NAME_MAPPING_KEYS: Array<string> = ["name", "sport"];
 
 @injectable()
 export default class MapperService {
-  protected helperService: HelperService;
+  private helperService: HelperService;
 
   constructor(@inject(HelperService) _helperService: HelperService) {
     this.helperService = _helperService;
@@ -48,7 +55,6 @@ export default class MapperService {
             let currentKey = "sport";
             try {
               this.mapData(obj, result, currentKey);
-              this.helperService.cacheFeedData("oddschecker.json", result);
               this.helperService
                 .writeJsonAsync("oddschecker.json", result)
                 .then(status => {
@@ -148,41 +154,48 @@ export default class MapperService {
       } else {
         if (typeof keys[i] === "string" && isNaN(parseInt(keys[i], 10))) {
           currentKey = keys[i];
-          switch (currentKey) {
-            case "competitions":
-              subObject.events = [];
-              this.mapData(theObject[keys[i]], subObject.events, currentKey);
-              break;
-            case "matches":
-              subObject.subevents = [];
-              this.mapData(theObject[keys[i]], subObject.subevents, currentKey);
-              break;
-            case "markets":
-              subObject.markets = [];
-              this.mapData(theObject[keys[i]], subObject.markets, currentKey);
-              break;
-            case "outcomes":
-              subObject.bets = [];
-              this.mapData(theObject[keys[i]], subObject.bets, currentKey);
-              break;
-          }
+          subObject[BOOKMAKER_KEYS_MAPPER[currentKey]] = [];
+          this.mapData(
+            theObject[currentKey],
+            subObject[BOOKMAKER_KEYS_MAPPER[currentKey]],
+            currentKey
+          );
+          // switch (currentKey) {
+          //   case "competitions":
+          //     subObject.events = [];
+          //     this.mapData(theObject[keys[i]], subObject.events, currentKey);
+          //     break;
+          //   case "matches":
+          //     subObject.subevents = [];
+          //     this.mapData(theObject[keys[i]], subObject.subevents, currentKey);
+          //     break;
+          //   case "markets":
+          //     subObject.markets = [];
+          //     this.mapData(theObject[keys[i]], subObject.markets, currentKey);
+          //     break;
+          //   case "outcomes":
+          //     subObject.bets = [];
+          //     this.mapData(theObject[keys[i]], subObject.bets, currentKey);
+          //     break;
+          // }
         } else {
           let obj = {};
           this.mapData(theObject[keys[i]], obj, currentKey);
-          switch (currentKey) {
-            case "competitions":
-              subObject.push(obj);
-              break;
-            case "matches":
-              subObject.push(obj);
-              break;
-            case "markets":
-              subObject.push(obj);
-              break;
-            case "outcomes":
-              subObject.push(obj);
-              break;
-          }
+          subObject.push(obj);
+          // switch (currentKey) {
+          //   case "competitions":
+          //     subObject.push(obj);
+          //     break;
+          //   case "matches":
+          //     subObject.push(obj);
+          //     break;
+          //   case "markets":
+          //     subObject.push(obj);
+          //     break;
+          //   case "outcomes":
+          //     subObject.push(obj);
+          //     break;
+          // }
         }
       }
     }

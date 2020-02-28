@@ -1,20 +1,21 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as crypto from "crypto";
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
+import CacheService from "./cacheService";
 import "reflect-metadata";
-import { json } from "express";
 
 const LENGTH_OF_RANDOM_HEX_ID = 4;
 
 @injectable()
 export default class HelperService {
   private memoize: any;
-  private feedBettingData: any;
 
-  constructor() {
+  protected cacheService: CacheService;
+
+  constructor(@inject(CacheService) _cacheService: CacheService) {
+    this.cacheService = _cacheService;
     this.memoize = {};
-    this.feedBettingData = {};
   }
 
   generateId(): number {
@@ -59,8 +60,9 @@ export default class HelperService {
             console.error("File write failed!", err);
             reject(new Error(`File write failed! ${err}`));
           }
-          _self.feedBettingData[fileName] = jsonObject;
-          console.log(`Cached ${fileName} data to the object`);
+          const cacheName = fileName.split(".")[0];
+          _self.cacheService.set(cacheName, jsonObject);
+          console.log(`Cached ${cacheName} data to the object`);
           resolve(true);
         }
       );
@@ -69,8 +71,9 @@ export default class HelperService {
 
   readDataJsonAsync = (fileName: string): Promise<any> => {
     const _self = this;
+    const cacheName = fileName.split(".")[0];
     return new Promise((resolve, reject) => {
-      if (!this.feedBettingData[fileName]) {
+      if (!this.cacheService.get(cacheName)) {
         fs.readFile(path.resolve("resources", fileName), "utf8", function(
           err,
           data
@@ -81,7 +84,8 @@ export default class HelperService {
           }
           try {
             let obj = JSON.parse(data);
-            _self.cacheFeedData(fileName, obj);
+            console.log("Writing to cache again!!!");
+            _self.cacheService.set(cacheName, obj);
             resolve(obj);
           } catch (err) {
             console.error("Parsing JSON failed!", err);
@@ -89,16 +93,11 @@ export default class HelperService {
           }
         });
       } else {
-       resolve(this.feedBettingData[fileName]);
+        console.log("Reading from cache!!!");
+        resolve(this.cacheService.get(cacheName));
       }
     });
   };
-
-  cacheFeedData(fileName: string, data: Object) {
-    if (!this.feedBettingData[fileName]) {
-      this.feedBettingData[fileName] = data;
-    }
-  }
 
   getObject(theObject: any, property?: string, value?: string | number): any {
     if (!this.memoize[`${property}_${value}`]) {
